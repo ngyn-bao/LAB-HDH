@@ -1,0 +1,43 @@
+- chmod: Thay doi quyen cua nguoi dung (gom 3 thanh phan: user/group/other), 4 - quyen doc, 2 - quyen ghi, 1 - quyen thuc thi.
+- ls: xuat ra danh sach tep/thu muc
+- cat: doc file text
+- nano: chinh sua file text
+- mv: thay doi ten file/thu muc, di chuyen file
+- rm: xoa file/thu muc
+- echo: in ra man hinh
+- > file: ghi de noi dung file, >>: ghi noi tiep noi dung file
+- cal: xem lich
+- tr: thay doi hoac xoa ki tu trong file
+- Redirect(>): dung de truyen du lieu toi FILE khac
+- Pipe (|): dung de truyen du lieu toi CHUONG TRINH khac
+- touch: tao file moi
+- whoami: xem ten user
+- which: xem duong dan
+• $0 - The name of the Bash script file.
+• $1 - $9 - Arguments passed to the Bash script file, respectively.
+• $# - The number of arguments we pass to the file the Bash script.
+• $@ - All arguments provided to the Bash script file.
+• $? - State of the last executed statement ( 0 -> true , 1 -> false )
+• $$ - ID of the current script .
+- read -p "Message" <Read Variable Name>
+• = : $a -eq $b
+• >= : $a -ge $b
+• > : $a -gt $b
+• <= : $a -le $b
+• < : $a -lt $b
+• != : $b -ne $b
+- i f [ c o n d i t i o n s ]
+then
+commands
+f i
+- for i in { 1 . . 5 }
+18
+do
+echo $ i
+done
+- i =1
+while [ [ $ i −l e 5 ] ] ; do
+echo " $ i "
+( ( i += 1 ) )
+done
+- df : xem dung luong file tren o cung
