@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (verifyBuild(projectName) != 0) {
-        fprintf(stderr, "Failed to verify project '%s''s build.", projectName);
+        fprintf(stderr, "Failed to verify project '%s' build.", projectName);
         exit(1);
     }
 
