@@ -18,13 +18,14 @@ typedef struct
     int count[MAX_MOVIES];
 } ShareData;
 
-void read_and_process_file(char *fileName, ShareData *data)
+void read_and_process_file(char *fileName, int shmid)
 {
+    ShareData *data = (ShareData *)shmat(shmid, NULL, 0);
     FILE *file = fopen(fileName, "r");
     if (file == NULL)
     {
         perror("Error opening file");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     int userId, movieId, rating, timeStamp;
@@ -37,13 +38,14 @@ void read_and_process_file(char *fileName, ShareData *data)
     }
 
     fclose(file);
+    shmdt(data);
+    exit(0);
 }
 
 int main(int argc, char *argv[])
 {
-    int shmid;
+    int shmid = shmget(SHM_KEY, sizeof(ShareData), 0666 | IPC_CREAT);
 
-    shmid = shmget(SHM_KEY, sizeof(ShareData), 0666 | IPC_CREAT);
     if (shmid < 0)
     {
         perror("Shared-memory failed");
@@ -62,43 +64,58 @@ int main(int argc, char *argv[])
     pid_t pid1 = fork();
     if (pid1 == 0)
     {
-        read_and_process_file("movie-100k_1.txt", data);
+        read_and_process_file("movie-100k_1.txt", shmid);
         exit(0);
     }
-    else if (pid1 > 0){
-    }
-    else{
-    	perror("Process fork failed\n");
-	exit(1);
+    else if (pid1 < 0)
+    {
+        perror("First fork failed");
+        exit(1);
     }
 
     pid_t pid2 = fork();
     if (pid2 == 0)
     {
-        read_and_process_file("movie-100k_2.txt", data);
+        read_and_process_file("movie-100k_2.txt", shmid);
         exit(0);
     }
-    else if (pid2 > 0){
-    }
-    else{
-    	perror("Process fork failed\n");
-    	exit(1);
+    else if (pid2 < 0)
+    {
+        perror("Second fork failed");
+        exit(1);
     }
 
-    waitpid(pid1, NULL, 0);
-    waitpid(pid2, NULL, 0);
+    int status;
+    waitpid(pid1, &status, 0);
+    if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
+    {
+        shmdt(data);
+        shmctl(shmid, IPC_RMID, NULL);
+        exit(1);
+    }
+
+    waitpid(pid2, &status, 0);
+    if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
+    {
+        shmdt(data);
+        shmctl(shmid, IPC_RMID, NULL);
+        exit(1);
+    }
 
     float avg_ratings[MAX_MOVIES];
 
-    for(int i = 0; i < MAX_MOVIES;i++){
-    	if (data->count[i] > 0){
-		avg_ratings[i] = (float)data->sumRating[i]/(float)data->count[i];
-	}
-    }
-
     for (int i = 0; i < MAX_MOVIES; i++)
     {
-          printf("ITEM %d has %.3f rating\n", i, avg_ratings[i]);
+        if (data->count[i] > 0)
+        {
+            avg_ratings[i] = (float)data->sumRating[i] / data->count[i];
+            printf("ITEM %d has %.3f rating\n", i, avg_ratings[i]);
+        }
+        else
+        {
+            avg_ratings[i] = 0.0;
+            printf("ITEM %d has %.3f rating\n", i, avg_ratings[i]);
+        }
     }
 
     shmdt(data);
