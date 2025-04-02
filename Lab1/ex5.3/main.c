@@ -138,7 +138,7 @@ int createProject(const char* name, int withGit) {
         perror("Error: Memory allocation failed");
         return 1;
     }
-    strcpy(readmeContent, "#");
+    strcpy(readmeContent, "# ");
     strcat(readmeContent, name);
     createFile(path, readmeContent);
     free(readmeContent);
