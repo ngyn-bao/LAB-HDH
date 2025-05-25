@@ -15,12 +15,12 @@ check(){
 
 init(){
 	if [ -d "$BKUDIR" ]; then 
-		echo 'Error: Backup already initialized in this folder.'
+		echo 'Backup already initialized in this folder.'
 		exit 1
 	fi
 
-	mkdir -p "$BKUDIR" "$COMMITSDIR" || { echo "Error: Failed to create backup directories."; exit 1; }
-	touch "$HISTORY" "$TRACKEDFILES"|| { echo "Error: Failed to create backup history file."; exit 1; }
+	mkdir -p "$BKUDIR" "$COMMITSDIR" || { echo "Failed to create backup directories."; exit 1; }
+	touch "$HISTORY" "$TRACKEDFILES"|| { echo "Failed to create backup history file."; exit 1; }
 	echo 'Backup initialized.'
 	log_action "$(date +"%H:%M-%d/%m/%Y"): BKU Init."
 }
@@ -39,13 +39,13 @@ add(){
 
 	for file in "${files[@]}"; do
 		if [ ! -f "$file" ]; then
-			echo Error: "$file" does not exist.
+			echo "$file" does not exist.
 			continue
 		elif ! grep -qx "$file" $TRACKEDFILES; then
 			echo "$file" >> $TRACKEDFILES
 			echo Added "$file" to backup tracking.
 		else
-			echo "$file is already tracked."
+			echo "Error: $file is already tracked."
 		fi
 
 		fileName=$(echo "$file" | tr '/' '_') 
@@ -58,7 +58,7 @@ add(){
 status(){
     check
 	if [ ! -s $TRACKEDFILES ];  then
-		echo Nothing has been tracked.
+		echo "Error: Nothing has been tracked."
 		return
 	fi
 
@@ -94,7 +94,7 @@ status(){
 	done
 
 	if [ "$failed" -eq "${#files[@]}" ]; then
-			echo Error: Nothing has been tracked.
+			echo ${#files[@]} is not tracked.
 			exit 1
 		fi
 }
@@ -102,7 +102,7 @@ status(){
 commit(){
 	check
 	if [ -z "$1" ]; then
-		echo Error: Commit message is required.
+		echo 'Error: Commit message is required.'
 		exit 1
 	fi
 
@@ -111,7 +111,7 @@ commit(){
 	commitId=$(date +"%H:%M-%d/%m/%Y")
 
  	if [ ! -s $TRACKEDFILES ];  then
-		echo Error: No change to commit.
+		echo 'Error: No change to commit.'
 		return
 	fi
 
@@ -125,7 +125,7 @@ commit(){
 
 	for file in "${files[@]}"; do
 		if ! grep -qx "$file" "$TRACKEDFILES"; then
-			echo Error: "$file" is not tracked.
+			echo "$file" is not tracked.
 			continue 
 		fi	
 		
@@ -143,14 +143,14 @@ commit(){
 		if [ -n "$diffOutput" ]; then
             echo "$diffOutput" > "$commitFile"
 			cp "$file" "$prevFile"
-            echo "Committed $file with ID $commitId"
+            echo "Committed $file with ID $commitId."
             changedFiles+="$file"
             changesMade=true
         fi
 	done
 
 	if [ "$changesMade" = false ]; then
-		echo Error: No change to commit.
+		echo 'Error: No change to commit.'
 		exit 1
 	fi
 	
@@ -171,7 +171,7 @@ restore(){
 	check
 
 	if [ ! -s "$TRACKEDFILES" ]; then
-		echo "Error: No file to be restored."
+		echo "No file to be restored."
 		exit 1
 	fi
 
@@ -185,7 +185,7 @@ restore(){
 
 	for file in "${files[@]}"; do
 		if ! grep -qx "$file" "$TRACKEDFILES"; then
-			echo "Error: $file is not tracked."
+			echo $file is not tracked.
 			continue 
 		fi	
 
@@ -193,7 +193,7 @@ restore(){
 		diffOutput=$(find "$COMMITSDIR" -type f -name "*-$fileName.diff" | sort | tail -n 1)
 
 		if [ -z "$diffOutput" ]; then
-			echo "Error: No previous version available for $file"
+			echo "No previous version available for $file"
 			continue
 		else
 			patch -R "$file" < "$diffOutput"
@@ -204,7 +204,7 @@ restore(){
 	done
 
 	if [ "$changesFound" = false ]; then
-		echo "Error: No file to be restored."
+		echo 'Error: No file to be restored.'
 		exit 1
 	fi
 }
@@ -239,7 +239,7 @@ schedule(){
 
 stop(){
 	if [ ! -d "$BKUDIR" ]; then
-		echo Error: No backup system to be removed.
+		echo 'Error: No backup system to be removed.'
 		exit 1
 	fi
 	rm -rf "$BKUDIR"

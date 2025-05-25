@@ -1,0 +1,14 @@
+install: main.c
+	@gcc -Wall main.c -o cnew                 
+	@sudo mv cnew /usr/local/bin/cnew        
+	@echo "cnew installed successfully."
+
+uninstall:
+	@sudo rm -f /usr/local/bin/cnew          
+	@echo "cnew uninstalled successfully."
+
+clean:
+	@rm -f cnew
+	@echo "Cleaned up."
+
+.PHONY: install uninstall clean
