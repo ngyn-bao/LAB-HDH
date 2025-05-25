@@ -89,14 +89,14 @@ status(){
 			echo "$file:"
 			echo "$diffOutput"
 		else
-			echo "$file: No changes."
+			echo "$file: No changes"
 		fi 
 	done
 
-	if [ "$failed" -eq "${#files[@]}" ]; then
-			echo ${#files[@]} is not tracked.
-			exit 1
-		fi
+	# if [ "$failed" -eq "${#files[@]}" ]; then
+	# 		echo ${#files[@]} is not tracked.
+	# 		exit 1
+	# 	fi
 }
 
 commit(){
@@ -203,10 +203,10 @@ restore(){
 		fi
 	done
 
-	if [ "$changesFound" = false ]; then
-		echo 'Error: No file to be restored.'
-		exit 1
-	fi
+	# if [ "$changesFound" = false ]; then
+	# 	echo 'Error: No file to be restored.'
+	# 	exit 1
+	# fi
 }
 
 schedule(){
