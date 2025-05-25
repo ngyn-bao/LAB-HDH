@@ -15,7 +15,7 @@ check(){
 
 init(){
 	if [ -d "$BKUDIR" ]; then 
-		echo 'Backup already initialized in this folder.'
+		echo 'Error: Backup already initialized in this folder.'
 		exit 1
 	fi
 
@@ -39,7 +39,7 @@ add(){
 
 	for file in "${files[@]}"; do
 		if [ ! -f "$file" ]; then
-			echo "$file" does not exist.
+			echo Error: "$file" does not exist.
 			continue
 		elif ! grep -qx "$file" $TRACKEDFILES; then
 			echo "$file" >> $TRACKEDFILES
@@ -72,7 +72,7 @@ status(){
 
 	for file in "${files[@]}"; do
 		if ! grep -qx "$file" "$TRACKEDFILES"; then
-			echo "$file" is not tracked.
+			echo Error: "$file" is not tracked.
 			((failed++))
 			continue
 		fi
@@ -80,7 +80,7 @@ status(){
 		lastCommitFile="$COMMITSDIR/latest-$(echo "$file" | tr '/' '_').tmp"
 
 		if [ -z "$lastCommitFile" ]; then
-			echo "$file: No previous commit found."
+			echo Error: "$file: No previous commit found."
 			continue
 		fi
 
@@ -193,7 +193,7 @@ restore(){
 		diffOutput=$(find "$COMMITSDIR" -type f -name "*-$fileName.diff" | sort | tail -n 1)
 
 		if [ -z "$diffOutput" ]; then
-			echo "No previous version available for $file"
+			echo Error: "No previous version available for $file"
 			continue
 		else
 			patch -R "$file" < "$diffOutput"
